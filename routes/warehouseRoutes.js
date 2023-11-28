@@ -1,45 +1,45 @@
-const router = require('express').Router();
+const router = require("express").Router();
 const {
   getWarehouses,
   createWarehouse,
   updateWarehouse,
-  deleteWarehouse
-} = require('../controllers/warehouseController');
+  deleteWarehouse,
+} = require("../controllers/warehouseController");
 
-const multerMiddleware = require('../middlewares/multerMiddleware');
+const multerMiddleware = require("../middlewares/multerMiddleware");
 
-const authGuard = require('../middlewares/authGuard');
-
-
-router.get(
-  '/get_warehouses',
+const {
   authGuard,
-  getWarehouses
-);
+  allowedTo,
+  allowedToPermissions,
+} = require("../middlewares/authGuard");
+
+router.get("/get_warehouses", authGuard, getWarehouses);
 
 router.post(
-  '/create_warehouse',
+  "/create_warehouse",
   authGuard,
-  multerMiddleware('warehouses').fields([
-    { name: 'image', maxCount: 1 }
-  ]),
+  allowedTo("admin"),
+  allowedToPermissions("manage_warehouses"),
+  multerMiddleware("warehouses").fields([{ name: "image", maxCount: 1 }]),
   createWarehouse
 );
 
 router.put(
-  '/update_warehouse/:warehouseId',
+  "/update_warehouse/:warehouseId",
   authGuard,
-  multerMiddleware('warehouses').fields([
-    { name: 'image', maxCount: 1 }
-  ]),
+  allowedTo("admin"),
+  allowedToPermissions("manage_warehouses"),
+
+  multerMiddleware("warehouses").fields([{ name: "image", maxCount: 1 }]),
   updateWarehouse
 );
 
 router.delete(
-  '/delete_warehouse/:warehouseId',
+  "/delete_warehouse/:warehouseId",
   authGuard,
+  allowedTo("admin"),
   deleteWarehouse
 );
-
 
 module.exports = router;

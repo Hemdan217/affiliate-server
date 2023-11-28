@@ -1,7 +1,7 @@
-const bcrypt = require('bcrypt');
-const { Moderator } = require('../models/UserModel');
-const paginate = require('../utils/paginate');
-const { generator } = require('../utils/generator');
+const bcrypt = require("bcrypt");
+const { Moderator } = require("../models/UserModel");
+const paginate = require("../utils/paginate");
+const { generator } = require("../utils/generator");
 
 const getModerators = async (req, res) => {
   try {
@@ -11,20 +11,19 @@ const getModerators = async (req, res) => {
     filter = JSON.stringify(filterQ);
     const data = await paginate(Moderator, page, size, query, filter);
     res.json(data);
-  }
-  catch (error) {
+  } catch (error) {
     console.log(error);
     res.status(400).json({
       success: false,
-      errors: [{ 'msg': 'something went wrong' }]
+      errors: [{ msg: "something went wrong" }],
     });
   }
-}
+};
 
 const createModerator = async (req, res) => {
   try {
     const hashPassword = await bcrypt.hash(req.body.password, 10);
-
+    if (req.body.role == "admin") throw "auth.one_admin";
     const newRecord = await new Moderator({
       ...req.body,
       main_account: req.user._id,
@@ -34,20 +33,20 @@ const createModerator = async (req, res) => {
 
     res.json({
       success: true,
-      data: newRecord
+      data: newRecord,
     });
-  }
-  catch (error) {
+  } catch (error) {
     console.log(error);
     res.status(400).json({
       success: false,
-      errors: [{ 'msg': 'something went wrong' }]
+      errors: [{ msg: "something went wrong" }],
     });
   }
-}
+};
 
 const updateModerator = async (req, res) => {
   try {
+    if (req.body.role == "admin") throw "auth.one_admin";
     const moderator = await Moderator.findByIdAndUpdate(
       req.params.moderatorId,
       req.body,
@@ -56,21 +55,19 @@ const updateModerator = async (req, res) => {
 
     res.json({
       success: true,
-      data: moderator
+      data: moderator,
     });
-  }
-  catch (error) {
+  } catch (error) {
     console.log(error);
     res.status(400).json({
       success: false,
-      errors: [{ 'msg': 'something went wrong' }]
+      errors: [{ msg: "something went wrong" }],
     });
   }
-}
-
+};
 
 module.exports = {
   getModerators,
   createModerator,
-  updateModerator
-}
+  updateModerator,
+};

@@ -18,9 +18,13 @@ const login = async (req, res) => {
     const isMatch = await bcrypt.compare(req.body.password, user.password);
     if (!isMatch) throw "auth.invalid_credintials";
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "6h",
-    });
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "6h",
+      }
+    );
     if (!token) throw "global.something_went_wrong";
 
     res.json({ token, user });
@@ -40,6 +44,8 @@ const register = async (req, res) => {
 
     const UserModel = getUserModel(req.body.role);
     if (!UserModel) throw "auth.invalid_role";
+    if (req.body.role == "admin") throw "auth.one_admin";
+    if (req.body.is_active == true) throw "auth.can't_activate_admin";
 
     const user = await new UserModel({
       ...req.body,
@@ -47,7 +53,7 @@ const register = async (req, res) => {
       password: hashPassword,
     }).save();
 
-    res.json({ user });
+    res.json({ message: "Successfully registered" });
   } catch (e) {
     console.log(e);
     res.status(400).json({
@@ -63,9 +69,13 @@ const resetPassword = async (req, res) => {
     });
     if (!user) throw "auth.user_not_found";
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "24h",
-    });
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "24h",
+      }
+    );
     if (!token) throw "auth.user_not_found";
 
     sendResetPasswordEmail(user.email, token);
@@ -115,11 +125,15 @@ const checkAuthentication = async (req, res) => {
       model: "Rule",
     });
 
-    if (!user) throw "user_not_found";
+    if (!user || !user.is_active) throw "user_not_found";
 
-    const newToken = jwt.sign({ id: user?._id }, process.env.JWT_SECRET, {
-      expiresIn: "6h",
-    });
+    const newToken = jwt.sign(
+      { id: user?._id, role: user.role },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "6h",
+      }
+    );
 
     return res.json({
       token: newToken,

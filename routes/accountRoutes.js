@@ -1,12 +1,12 @@
-const router = require('express').Router();
-const { getAccounts } = require('../controllers/accountController');
+const router = require("express").Router();
+const { getAccounts } = require("../controllers/accountController");
 
-const authGuard = require('../middlewares/authGuard');
-
+const { authGuard, allowedTo } = require("../middlewares/authGuard");
 
 router.get(
-  '/get_accounts',
+  "/get_accounts",
   authGuard,
+  allowedTo("admin", "merchant", "marketer", "moderator"),
   getAccounts
 );
 

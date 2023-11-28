@@ -1,29 +1,20 @@
-const router = require('express').Router();
+const router = require("express").Router();
 const {
   getNotifications,
   updateNotification,
-  updateNotifications
-} = require('../controllers/notificationController');
+  updateNotifications,
+} = require("../controllers/notificationController");
 
-const authGuard = require('../middlewares/authGuard');
+const { authGuard } = require("../middlewares/authGuard");
 
-
-router.get(
-  '/get_notifications',
-  authGuard,
-  getNotifications
-);
+router.get("/get_notifications", authGuard, getNotifications);
 
 router.put(
-  '/update_notification/:notificationId',
+  "/update_notification/:notificationId",
   authGuard,
   updateNotification
 );
 
-router.put(
-  '/update_notifications',
-  authGuard,
-  updateNotifications
-);
+router.put("/update_notifications", authGuard, updateNotifications);
 
 module.exports = router;

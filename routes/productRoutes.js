@@ -1,52 +1,50 @@
-const router = require('express').Router();
+const router = require("express").Router();
 const {
   getProducts,
   getProductById,
   createProduct,
   updateProduct,
   updateAccessProduct,
-} = require('../controllers/productController');
+} = require("../controllers/productController");
 
-const multerMiddleware = require('../middlewares/multerMiddleware');
+const multerMiddleware = require("../middlewares/multerMiddleware");
 
-const authGuard = require('../middlewares/authGuard');
-
-
-router.get(
-  '/get_products/:userId',
+const {
   authGuard,
-  getProducts
-);
+  allowedTo,
+  allowedToPermissions,
+} = require("../middlewares/authGuard");
 
-router.get(
-  '/products/:productId',
-  authGuard,
-  getProductById
-)
+router.get("/get_products/:userId", authGuard, getProducts);
+
+router.get("/products/:productId", authGuard, getProductById);
 
 router.post(
-  '/create_product',
+  "/create_product",
   authGuard,
-  multerMiddleware('products').fields([
-    { name: 'image' }
-  ]),
+  allowedTo("admin"),
+  allowedToPermissions("manage_products"),
+
+  multerMiddleware("products").fields([{ name: "image" }]),
   createProduct
 );
 
 router.put(
-  '/update_product/:productId',
+  "/update_product/:productId",
   authGuard,
-  multerMiddleware('products').fields([
-    { name: 'image' }
-  ]),
+  allowedTo("admin"),
+  allowedToPermissions("manage_products"),
+
+  multerMiddleware("products").fields([{ name: "image" }]),
   updateProduct
 );
 
 router.put(
-  '/update_access_product/:productId',
+  "/update_access_product/:productId",
   authGuard,
+  allowedTo("admin"),
+  allowedToPermissions("manage_products"),
   updateAccessProduct
 );
-
 
 module.exports = router;

@@ -13,9 +13,9 @@ router.post(
 );
 
 router.post(
-   '/register',
-   register
- );
+  '/register',
+  register
+);
 
 router.post(
   '/check_auth',
